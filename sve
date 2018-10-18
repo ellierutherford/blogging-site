@@ -1,0 +1,38 @@
+latestFive :: ActionM()
+latestFive = do
+  _ <- liftIO $ createDirectoryIfMissing False "./blogs" 
+  fileNames <- liftIO $ listDirectory "./blogs"
+  let createButton = Data.Text.Lazy.pack "<button type= \"button\" onclick=\"document.location.href='/authen'\">Create New Post!</button>"
+  if fileNames == []
+    then html $ createButton
+  else
+    do
+      _ <- liftIO $ setCurrentDirectory "./blogs"
+      let dir = Data.Text.Lazy.pack $ show fileNames
+      let comma = Data.Text.Lazy.pack ","
+      let dirList = splitOn comma dir
+      let filteredList = Prelude.map (Data.Text.Lazy.filter (not . (`elem` ['"','[','/',']']))) dirList
+      let reversed = Prelude.reverse (Data.List.sort filteredList)
+      let listToPrint = Prelude.take 5 reversed
+      a <- liftIO $ mapM readFile $ Prelude.map Data.Text.Lazy.unpack listToPrint
+      _ <- liftIO $ setCurrentDirectory "./.." 
+      let b = Prelude.map read a :: [BlogPost] 
+      let c = Prelude.map showBlogPost b
+      let d = Data.Text.Lazy.concat c
+      let createButton = Data.Text.Lazy.pack "<button type= \"button\" onclick=\"document.location.href='/authen'\">Create New Post!</button>"
+      html $ (d<>createButton)
+
+--creates html for links page - takes a title and returns the title as a link on the page
+--links :: Text -> Text
+--links post = do
+  --R.renderHtml $ do
+    --H.head $ H.title "Links to all posts sorted by date"
+    --H.body $ do
+      --let urlLink = H.stringValue $ show post
+      --H.p $ H.a H.! A.href urlLink $ H.toHtml post
+
+--createButton :: Text
+--createButton = do
+  --R.renderHtml $ do
+    --let text = "create button"
+    --H.button H.! A.action ("/authen" :: H.AttributeValue) $ H.toHtml text
