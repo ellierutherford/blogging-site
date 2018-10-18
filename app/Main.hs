@@ -1,7 +1,3 @@
---to do:
---OPTIONAL:
---do forms + button using blaze
---pretty up pages 
 
 {-# LANGUAGE OverloadedStrings #-}
 
